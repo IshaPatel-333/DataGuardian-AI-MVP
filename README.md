@@ -38,6 +38,7 @@ Gemini AI
 Business Impact
     +
 Remediation Actions
+```
 
 ### Features
 
