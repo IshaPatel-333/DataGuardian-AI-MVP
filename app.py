@@ -15,7 +15,6 @@ from quality_engine import (
 
 st.set_page_config(
     page_title="DataGuardian AI",
-    page_icon="🛡️",
     layout="wide"
 )
 
@@ -24,7 +23,7 @@ st.set_page_config(
 # Header
 # --------------------------------------------------
 
-st.title("🛡️ DataGuardian AI")
+st.title("DataGuardian AI")
 
 st.write(
     "AI-assisted data quality monitoring "
@@ -120,25 +119,25 @@ if uploaded_file is not None:
     # Quality Checks Summary
     # --------------------------------------------------
 
-    st.subheader("🔍 Data Quality Checks")
+    st.subheader("Data Quality Checks")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
         st.metric(
-            "🚨 Critical",
+            "Critical",
             summary["critical_issues"]
         )
 
     with col2:
         st.metric(
-            "⚠️ Warnings",
+            "Warnings",
             summary["warning_issues"]
         )
 
     with col3:
         st.metric(
-            "✓ Checks Passed",
+            "Checks Passed",
             summary["passed_checks"]
         )
 
@@ -173,7 +172,7 @@ if uploaded_file is not None:
     # --------------------------------------------------
 
     st.subheader(
-        "🚦 Data Quality Gate"
+        "Data Quality Gate"
     )
 
     gate_col1, gate_col2 = st.columns(2)
@@ -205,7 +204,7 @@ if uploaded_file is not None:
     # --------------------------------------------------
 
     st.subheader(
-        "⚠️ Issues Detected"
+        "Issues Detected"
     )
 
     missing_percentage = (
@@ -343,10 +342,10 @@ if uploaded_file is not None:
 
     # AI Business Impact Analysis
 
-    st.subheader("🤖 AI Action Plan")
+    st.subheader("AI Action Plan")
     st.write(
     "AI-generated impact assessment and recommended remediation.")
-    if st.button("✨ Analyze with Gemini"):
+    if st.button("Analyze with Gemini"):
 
         with st.spinner("Analyzing data-quality findings..."):
 
@@ -453,7 +452,7 @@ if uploaded_file is not None:
     report_content = "\n".join(report_lines)
 
     st.download_button(
-        label="⬇️ Download Quality Report",
+        label="⬇Download Quality Report",
         data=report_content,
         file_name="dataguardian_quality_report.txt",
         mime="text/plain",
