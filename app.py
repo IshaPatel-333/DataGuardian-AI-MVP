@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from ai_engine import generate_ai_analysis
+from sql_engine import run_sql_quality_checks
 from quality_engine import (
     run_quality_checks,
     get_check_summary,
@@ -8,65 +9,39 @@ from quality_engine import (
     determine_quality_gate
 )
 
-
-# --------------------------------------------------
 # Page Configuration
-# --------------------------------------------------
-
 st.set_page_config(
     page_title="DataGuardian AI",
     layout="wide"
 )
 
-
-# --------------------------------------------------
 # Header
-# --------------------------------------------------
-
 st.title("DataGuardian AI")
-
 st.write(
     "AI-assisted data quality monitoring "
     "and analysis."
 )
-
 st.divider()
 
-
-# --------------------------------------------------
 # File Upload
-# --------------------------------------------------
-
 uploaded_file = st.file_uploader(
     "Upload a CSV dataset",
     type=["csv"]
 )
 
-
-# --------------------------------------------------
 # Main Application
-# --------------------------------------------------
-
 if uploaded_file is not None:
-
     # Load dataset
     df = pd.read_csv(uploaded_file)
+    sql_metrics = run_sql_quality_checks(df)
 
-
-    # --------------------------------------------------
     # Dataset Overview
-    # --------------------------------------------------
-
     st.subheader("Dataset Overview")
 
-    total_rows = len(df)
-    total_columns = len(df.columns)
-    total_missing = int(
-        df.isna().sum().sum()
-    )
-    total_duplicates = int(
-        df.duplicated().sum()
-    )
+    total_rows = sql_metrics["row_count"]
+    total_columns = sql_metrics["column_count"]
+    total_missing = sql_metrics["total_missing"]
+    total_duplicates = sql_metrics["duplicate_count"]
 
     col1, col2, col3, col4 = st.columns(4)
 
@@ -96,29 +71,18 @@ if uploaded_file is not None:
 
     st.divider()
 
-
-    # --------------------------------------------------
     # Run Quality Engine
-    # --------------------------------------------------
-
     issues = run_quality_checks(df)
-    
     summary = get_check_summary(issues)
-
     quality_score = calculate_quality_score(
         df,
         issues
     )
-
     gate = determine_quality_gate(
         issues
     )
 
-
-    # --------------------------------------------------
     # Quality Checks Summary
-    # --------------------------------------------------
-
     st.subheader("Data Quality Checks")
 
     col1, col2, col3 = st.columns(3)
@@ -141,68 +105,44 @@ if uploaded_file is not None:
             summary["passed_checks"]
         )
 
-
-    # --------------------------------------------------
     # Issue Details
-    # --------------------------------------------------
-
     if issues:
-
         issue_df = pd.DataFrame(
             issues
         )
-
         st.dataframe(
             issue_df,
             width='stretch'
         )
-
     else:
-
         st.success(
             "No data-quality issues detected."
         )
-
-
     st.divider()
 
-
-    # --------------------------------------------------
     # Quality Gate
-    # --------------------------------------------------
-
     st.subheader(
         "Data Quality Gate"
     )
-
     gate_col1, gate_col2 = st.columns(2)
-
+    
     with gate_col1:
-
         st.metric(
             "Quality Score",
             f"{quality_score}/100"
         )
 
     with gate_col2:
-
         st.metric(
             "Gate Status",
             gate["status"]
         )
-
     st.info(
         gate["message"]
     )
-
-
     st.divider()
 
-
-    # --------------------------------------------------
     # Issue Overview
-    # --------------------------------------------------
-
     st.subheader(
         "Issues Detected"
     )
@@ -231,42 +171,31 @@ if uploaded_file is not None:
     issue_col1, issue_col2, issue_col3 = st.columns(3)
 
     with issue_col1:
-
         st.metric(
             "Missing Values",
             f"{total_missing:,}"
         )
-
         st.caption(
             f"{missing_percentage:.2f}% of all cells"
         )
 
     with issue_col2:
-
         st.metric(
             "Duplicate Rows",
             f"{total_duplicates:,}"
         )
-
         st.caption(
             f"{duplicate_percentage:.2f}% of rows"
         )
 
     with issue_col3:
-
         st.metric(
             "Numerical Outliers",
             f"{total_outliers:,}"
         )
-
-
     st.divider()
 
-
-    # --------------------------------------------------
     # Missing Values by Column
-    # --------------------------------------------------
-
     st.subheader(
         "Missing Values by Column"
     )
@@ -286,25 +215,17 @@ if uploaded_file is not None:
             missing_by_column["Missing Values"] > 0
         ]
     )
-
     if not missing_by_column.empty:
-
         st.dataframe(
             missing_by_column,
             width='stretch'
         )
-
     else:
-
         st.success(
             "No missing values detected."
         )
 
-
-    # --------------------------------------------------
     # Numerical Outliers
-    # --------------------------------------------------
-
     st.subheader(
         "Numerical Outliers"
     )
@@ -325,23 +246,17 @@ if uploaded_file is not None:
     })
 
     if not outlier_table.empty:
-
         st.dataframe(
             outlier_table,
             width='stretch'
         )
-
     else:
-
         st.success(
             "No numerical outliers detected."
         )
-
-
     st.divider()
 
     # AI Business Impact Analysis
-
     st.subheader("AI Action Plan")
     st.write(
     "AI-generated impact assessment and recommended remediation.")
@@ -356,25 +271,18 @@ if uploaded_file is not None:
             )
 
         if "error" in ai_result:
-
             st.error(
                 f"Gemini analysis failed: {ai_result['error']}"
             )
-
         else:
-
-            st.session_state["ai_analysis"] = ai_result["analysis"]
-
-            st.markdown(
-                ai_result["analysis"]
-            )
-
-    # --------------------------------------------------
+            st.session_state["ai_analysis"] = (ai_result["analysis"])
+    
+    # Display saved analysis whenever it exists
+    if "ai_analysis" in st.session_state:
+        st.markdown(st.session_state["ai_analysis"])
+    
     # Download Quality Report
-    # --------------------------------------------------
-
     report_lines = []
-
     report_lines.append("DATAGUARDIAN AI - DATA QUALITY REPORT")
     report_lines.append("=" * 50)
     report_lines.append("")
@@ -414,9 +322,7 @@ if uploaded_file is not None:
     report_lines.append("-" * 30)
 
     if issues:
-
         for issue in issues:
-
             report_lines.append(
                 f"[{issue['Severity']}] "
                 f"{issue['Check']} - "
@@ -424,9 +330,7 @@ if uploaded_file is not None:
                 f"(Count: {issue['Count']}, "
                 f"{issue['Percentage']}%)"
             )
-
     else:
-
         report_lines.append(
             "No quality issues detected."
         )
@@ -459,14 +363,10 @@ if uploaded_file is not None:
         width='stretch'
     )
 
-    # --------------------------------------------------
     # Data Preview
-    # --------------------------------------------------
-
     st.subheader(
         "Data Preview"
     )
-
     st.dataframe(
         df.head(10),
         width='stretch'
