@@ -10,8 +10,6 @@ AI-assisted data quality monitoring and validation tool built with Python, Panda
 
 DataGuardian AI analyzes uploaded CSV datasets and detects common data-quality issues before they reach downstream analytics or ML workflows.
 
-### Architecture
-
 ## Architecture
 
 ```text
@@ -40,7 +38,7 @@ Business Impact
 Remediation Actions
 ```
 
-### Features
+## Features
 
 - Missing value detection
 - Duplicate record detection
