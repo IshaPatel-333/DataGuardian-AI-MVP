@@ -51,5 +51,5 @@ The core validation is deterministic and handled by Python. Gemini is used only 
 - Google Gemini API
 
 ## Run Locally
-pip install -r requirements.txt
-streamlit run app.py
+- pip install -r requirements.txt
+- streamlit run app.py
