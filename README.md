@@ -12,23 +12,32 @@ DataGuardian AI analyzes uploaded CSV datasets and detects common data-quality i
 
 ### Architecture
 
-**CSV Dataset**
-↓
-**Data Quality Engine**
-- Missing values
-- Duplicate records
-- Numerical outliers
-- Schema and data-type validation
-↓
-**Quality Score + Validation**
-↓
-**PASS / WARNING / BLOCK**
-↓
-**Gemini AI**
-↓
-**Business Impact + Remediation**
+## Architecture
 
-The core validation is deterministic and handled by Python. Gemini is used only to explain detected issues and recommend actions.
+```text
+CSV Dataset
+    |
+    v
+Data Quality Engine
+    |
+    +--> Missing Values
+    +--> Duplicate Records
+    +--> Numerical Outliers
+    +--> Schema Validation
+    |
+    v
+Quality Score
+    |
+    v
+PASS / WARNING / BLOCK
+    |
+    v
+Gemini AI
+    |
+    v
+Business Impact
+    +
+Remediation Actions
 
 ### Features
 
